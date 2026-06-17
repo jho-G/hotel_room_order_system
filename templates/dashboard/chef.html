@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Chef Dashboard — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-4">
+            {% include "components/stat_card.html" with label="New Orders" value=stats.pending hint="Awaiting prep" %}
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            {% include "components/stat_card.html" with label="Cooking" value=stats.cooking hint="In kitchen" %}
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            {% include "components/stat_card.html" with label="Ready" value=stats.ready hint="For pickup" %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <h2>Pending Orders</h2>
+                    <span class="badge badge-muted">{{ pending_orders|length }}</span>
+                </div>
+                <div class="order-list p-3">
+                    {% for order in pending_orders %}
+                    {% include "components/order_card.html" with order=order show_start_cooking=True %}
+                    {% empty %}
+                    <div class="empty-state">
+                        <p>No pending orders right now.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <h2>Cooking</h2>
+                    <span class="badge badge-muted">{{ cooking_orders|length }}</span>
+                </div>
+                <div class="order-list p-3">
+                    {% for order in cooking_orders %}
+                    {% include "components/order_card.html" with order=order show_mark_ready=True %}
+                    {% empty %}
+                    <div class="empty-state">
+                        <p>No orders in the kitchen.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

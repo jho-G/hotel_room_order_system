@@ -1,0 +1,67 @@
+{% extends "base_customer.html" %}
+
+{% block content %}
+<section class="customer-hero">
+    <div class="container">
+        <p class="hero-welcome">WELCOME · ROOM {{ room_number }}</p>
+        <h1 class="hero-title">
+            A taste of <span class="text-gold">Ethiopia</span>, delivered to your door.
+        </h1>
+        <p class="hero-subtitle">
+            Authentic Ethiopian cuisine crafted by our chefs and delivered directly to your room — under 25 minutes.
+        </p>
+        <div class="hero-actions">
+            <a href="#menu" class="btn btn-gold">Order Now</a>
+            <a href="#menu" class="btn btn-outline-light">View Specials</a>
+        </div>
+    </div>
+</section>
+
+<section class="category-filters" id="menu">
+    <div class="container">
+        <div class="filter-pills d-flex flex-wrap gap-2">
+            <button type="button" class="filter-pill active" data-category="all">All</button>
+            {% for category in categories %}
+            <button type="button" class="filter-pill" data-category="{{ category.slug }}">{{ category.name }}</button>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="menu-grid-section">
+    <div class="container">
+        {% if menu_items %}
+        <div class="row g-4">
+            {% for item in menu_items %}
+            <div class="col-md-6 col-lg-4 menu-item" data-category="{{ item.category.slug }}">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-card-img">
+                        {% else %}
+                        <div class="menu-card-placeholder" aria-hidden="true"></div>
+                        {% endif %}
+                    </div>
+                    <div class="menu-card-body">
+                        <span class="menu-category">{{ item.category.name|upper }}</span>
+                        <h3 class="menu-item-title">{{ item.name }}</h3>
+                        <p class="menu-item-desc">{{ item.description }}</p>
+                        <div class="menu-card-footer">
+                            <span class="menu-price">ETB {{ item.price }}</span>
+                            <button type="button" class="btn btn-add" data-item="{{ item.name }}">
+                                Add +
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-menu-state text-center py-5">
+            <p class="text-muted mb-0">The menu is being prepared. Please check back shortly.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

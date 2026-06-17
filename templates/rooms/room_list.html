@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Rooms — {{ SITE_NAME }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'rooms:create' %}" class="btn btn-gold">Add Room</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>All Rooms</h2>
+            <span class="badge badge-muted">{{ rooms|length }} total</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-staff align-middle">
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Menu Link</th>
+                        <th>QR Code</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>
+                            <span class="fw-semibold">Room {{ room.room_number }}</span>
+                        </td>
+                        <td>
+                            <code class="menu-link-code">{{ room.get_menu_url }}</code>
+                        </td>
+                        <td>
+                            {% if room.qr_code %}
+                            <img src="{{ room.qr_code.url }}" alt="QR code for room {{ room.room_number }}" class="qr-thumb">
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if room.is_active %}
+                            <span class="badge status-badge status-active">Active</span>
+                            {% else %}
+                            <span class="badge status-badge status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ room.created_at|date:"M j, Y" }}</td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end flex-wrap gap-2">
+                                <a href="{% url 'rooms:download_qr' room.pk %}" class="btn btn-sm btn-outline-gold">Download QR</a>
+                                <a href="{% url 'rooms:edit' room.pk %}" class="btn btn-sm btn-outline-gold">Edit</a>
+                                {% if room.is_active %}
+                                <form method="post" action="{% url 'rooms:deactivate' room.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger-staff">Deactivate</button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{% url 'rooms:activate' room.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-gold">Activate</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                No rooms yet. Add a room to generate its QR code and menu link.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

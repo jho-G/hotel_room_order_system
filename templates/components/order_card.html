@@ -1,0 +1,44 @@
+<article class="order-card">
+    <div class="order-card-header">
+        <div>
+            <span class="order-card-id">Order #{{ order.pk }}</span>
+            <span class="order-card-room">Room {{ order.room.room_number }}</span>
+        </div>
+        {% include "components/order_status_badge.html" with order=order %}
+    </div>
+    <ul class="order-card-items">
+        {% for item in order.items.all %}
+        <li>{{ item.quantity }}× {{ item.menu_item.name }}</li>
+        {% endfor %}
+    </ul>
+    <div class="order-card-footer">
+        <div>
+            <span class="order-card-total">ETB {{ order.total }}</span>
+            <span class="order-card-time">{{ order.created_at|timesince }} ago</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline-gold">View</a>
+            {% if show_start_cooking %}
+            <form method="post" action="{% url 'orders:start_cooking' order.pk %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-sm btn-gold">Start Cooking</button>
+            </form>
+            {% endif %}
+            {% if show_mark_ready %}
+            <form method="post" action="{% url 'orders:mark_ready' order.pk %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-sm btn-gold">Mark Ready</button>
+            </form>
+            {% endif %}
+            {% if show_mark_delivered %}
+            <form method="post" action="{% url 'orders:mark_delivered' order.pk %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-sm btn-gold">Mark Delivered</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</article>

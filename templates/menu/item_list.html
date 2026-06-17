@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Menu Items — {{ SITE_NAME }}{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'menu:category_list' %}" class="btn btn-sm btn-outline-gold">Categories</a>
+    <a href="{% url 'menu:item_create' %}" class="btn btn-gold">Add Item</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>Menu Items</h2>
+            <span class="badge badge-muted">{{ items|length }} total</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-staff align-middle">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Availability</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-item-thumb">
+                                {% else %}
+                                <div class="menu-item-thumb-placeholder" aria-hidden="true"></div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-semibold">{{ item.name }}</div>
+                                    <div class="text-muted small text-truncate item-desc-preview">{{ item.description|truncatewords:12 }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ item.category.name }}</td>
+                        <td class="text-gold fw-semibold">ETB {{ item.price }}</td>
+                        <td>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-availability-toggle"
+                                hx-post="{% url 'menu:item_toggle_availability' item.pk %}"
+                                hx-target="#availability-{{ item.pk }}"
+                                hx-swap="innerHTML"
+                            >
+                                <span id="availability-{{ item.pk }}">
+                                    {% if item.available %}
+                                    <span class="badge availability-badge availability-on">Available</span>
+                                    {% else %}
+                                    <span class="badge availability-badge availability-off">Unavailable</span>
+                                    {% endif %}
+                                </span>
+                            </button>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end flex-wrap gap-2">
+                                <a href="{% url 'menu:item_edit' item.pk %}" class="btn btn-sm btn-outline-gold">Edit</a>
+                                <form method="post" action="{% url 'menu:item_delete' item.pk %}" class="d-inline" onsubmit="return confirm('Remove “{{ item.name }}” from the menu?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger-staff">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">No menu items yet. Add categories first, then create items.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

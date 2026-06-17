@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Supervisor Dashboard — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl">
+            {% include "components/stat_card.html" with label="Orders Today" value=stats.orders_today hint="Since midnight" %}
+        </div>
+        <div class="col-sm-6 col-xl">
+            {% include "components/stat_card.html" with label="Pending" value=stats.pending hint="Awaiting kitchen" %}
+        </div>
+        <div class="col-sm-6 col-xl">
+            {% include "components/stat_card.html" with label="Cooking" value=stats.cooking hint="In kitchen" %}
+        </div>
+        <div class="col-sm-6 col-xl">
+            {% include "components/stat_card.html" with label="Ready" value=stats.ready hint="Awaiting delivery" %}
+        </div>
+        <div class="col-sm-6 col-xl">
+            {% include "components/stat_card.html" with label="Delivered" value=stats.delivered hint="Completed today" %}
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>Order Monitor</h2>
+            <span class="badge badge-muted">{{ orders|length }} shown</span>
+        </div>
+
+        <div class="order-filters p-3">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All statuses</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="room" class="form-label">Search by room</label>
+                    <input type="text" name="room" id="room" class="form-control" placeholder="e.g. 101" value="{{ room_query }}">
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-gold">Filter</button>
+                    <a href="{% url 'dashboard:supervisor' %}" class="btn btn-outline-gold">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-staff align-middle">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Room</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="fw-semibold">#{{ order.pk }}</td>
+                        <td>Room {{ order.room.room_number }}</td>
+                        <td class="text-muted small">
+                            {% for item in order.items.all %}
+                            {{ item.quantity }}× {{ item.menu_item.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="text-gold fw-semibold">ETB {{ order.total }}</td>
+                        <td>{% include "components/order_status_badge.html" with order=order %}</td>
+                        <td>{{ order.created_at|date:"M j, g:i A" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline-gold">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">No orders match your filters.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

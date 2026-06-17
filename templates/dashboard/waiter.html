@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Waiter Dashboard — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6">
+            {% include "components/stat_card.html" with label="Ready to Deliver" value=stats.ready hint="Pick up now" %}
+        </div>
+        <div class="col-sm-6">
+            {% include "components/stat_card.html" with label="Delivered Today" value=stats.delivered_today hint="Completed" %}
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>Ready Orders</h2>
+            <span class="badge badge-muted">{{ ready_orders|length }}</span>
+        </div>
+        <div class="order-list p-3">
+            {% for order in ready_orders %}
+            {% include "components/order_card.html" with order=order show_mark_delivered=True %}
+            {% empty %}
+            <div class="empty-state">
+                <p>No orders ready for delivery.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

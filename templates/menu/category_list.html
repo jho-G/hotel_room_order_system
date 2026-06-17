@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Categories — {{ SITE_NAME }}{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'menu:item_list' %}" class="btn btn-sm btn-outline-gold">Menu Items</a>
+    <a href="{% url 'menu:category_create' %}" class="btn btn-gold">Add Category</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>Categories</h2>
+            <span class="badge badge-muted">{{ categories|length }} total</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-staff align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Items</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td class="fw-semibold">{{ category.name }}</td>
+                        <td>{{ category.items.count }}</td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end flex-wrap gap-2">
+                                <a href="{% url 'menu:category_edit' category.pk %}" class="btn btn-sm btn-outline-gold">Edit</a>
+                                <form method="post" action="{% url 'menu:category_delete' category.pk %}" class="d-inline" onsubmit="return confirm('Delete category “{{ category.name }}”?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger-staff">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-state">No categories yet. Add one to organize your menu.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

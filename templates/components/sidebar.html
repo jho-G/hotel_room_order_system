@@ -1,0 +1,46 @@
+<aside class="staff-sidebar">
+    <div class="sidebar-brand">
+        <span class="sidebar-logo">D</span>
+        <div>
+            <div class="sidebar-brand-name">{{ SITE_NAME }}</div>
+            <div class="sidebar-brand-sub">Room Service</div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        {% if user.is_supervisor %}
+        <a href="{% url 'dashboard:supervisor' %}" class="sidebar-link {% if request.resolver_match.url_name == 'supervisor' %}active{% endif %}">
+            Dashboard
+        </a>
+        <a href="{% url 'rooms:list' %}" class="sidebar-link {% if request.resolver_match.app_name == 'rooms' %}active{% endif %}">
+            Rooms
+        </a>
+        {% endif %}
+        {% if user.is_superuser %}
+        <a href="{% url 'admin:index' %}" class="sidebar-link">
+            Admin Panel
+        </a>
+        {% endif %}
+        {% if user.is_chef %}
+        <a href="{% url 'dashboard:chef' %}" class="sidebar-link {% if request.resolver_match.url_name == 'chef' %}active{% endif %}">
+            Kitchen
+        </a>
+        {% endif %}
+        {% if user.is_waiter %}
+        <a href="{% url 'dashboard:waiter' %}" class="sidebar-link {% if request.resolver_match.url_name == 'waiter' %}active{% endif %}">
+            Deliveries
+        </a>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <span class="sidebar-user-name">{{ user.get_full_name|default:user.username }}</span>
+            <span class="sidebar-user-role">{{ user.get_role_display|default:user.role }}</span>
+        </div>
+        <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-gold w-100">Logout</button>
+        </form>
+    </div>
+</aside>

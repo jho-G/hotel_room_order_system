@@ -1,0 +1,13 @@
+{% if order.status == "pending" %}
+<span class="order-status order-status-pending">Pending</span>
+{% elif order.status == "cooking" %}
+<span class="order-status order-status-cooking">Cooking</span>
+{% elif order.status == "ready" %}
+<span class="order-status order-status-ready">Ready</span>
+{% elif order.status == "delivered" %}
+<span class="order-status order-status-delivered">Delivered</span>
+{% elif order.status == "cancelled" %}
+<span class="order-status order-status-cancelled">Cancelled</span>
+{% else %}
+<span class="order-status">{{ order.get_status_display }}</span>
+{% endif %}

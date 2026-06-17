@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.pk }} — {{ SITE_NAME }}{% endblock %}
+
+{% block header_actions %}
+<a href="javascript:history.back()" class="btn btn-sm btn-outline-gold">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <h2>Order Items</h2>
+                    {% include "components/order_status_badge.html" with order=order %}
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-staff align-middle">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td class="fw-semibold">{{ item.menu_item.name }}</td>
+                                <td>{{ item.menu_item.category.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>ETB {{ item.price }}</td>
+                                <td class="text-end text-gold fw-semibold">ETB {{ item.line_total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end fw-semibold">Total</td>
+                                <td class="text-end text-gold fw-bold">ETB {{ order.total }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="dashboard-panel order-detail-sidebar">
+                <div class="dashboard-panel-header">
+                    <h2>Order Info</h2>
+                </div>
+                <div class="p-4">
+                    <dl class="order-detail-meta">
+                        <dt>Order</dt>
+                        <dd>#{{ order.pk }}</dd>
+                        <dt>Room</dt>
+                        <dd>Room {{ order.room.room_number }}</dd>
+                        <dt>Status</dt>
+                        <dd>{% include "components/order_status_badge.html" with order=order %}</dd>
+                        <dt>Placed</dt>
+                        <dd>{{ order.created_at|date:"M j, Y g:i A" }}</dd>
+                        <dt>Total</dt>
+                        <dd class="text-gold fw-bold">ETB {{ order.total }}</dd>
+                    </dl>
+
+                    {% if can_start_cooking or can_mark_ready or can_mark_delivered %}
+                    <div class="order-detail-actions mt-4 pt-3">
+                        {% if can_start_cooking %}
+                        <form method="post" action="{% url 'orders:start_cooking' order.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-gold w-100 mb-2">Start Cooking</button>
+                        </form>
+                        {% endif %}
+                        {% if can_mark_ready %}
+                        <form method="post" action="{% url 'orders:mark_ready' order.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-gold w-100 mb-2">Mark Ready</button>
+                        </form>
+                        {% endif %}
+                        {% if can_mark_delivered %}
+                        <form method="post" action="{% url 'orders:mark_delivered' order.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-gold w-100">Mark Delivered</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

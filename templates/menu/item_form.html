@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} — {{ SITE_NAME }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'menu:item_list' %}" class="btn btn-sm btn-outline-gold">Back to Menu Items</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="dashboard-panel staff-form-panel">
+                <div class="dashboard-panel-header">
+                    <h2>{% if object %}Edit Menu Item{% else %}New Menu Item{% endif %}</h2>
+                </div>
+                <div class="p-4">
+                    <form method="post" enctype="multipart/form-data" class="staff-form">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                                {{ form.category }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">Price (ETB)</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                                {{ form.image }}
+                                {% if object and object.image %}
+                                <div class="mt-2">
+                                    <img src="{{ object.image.url }}" alt="{{ object.name }}" class="menu-form-preview">
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    {{ form.available }}
+                                    <label class="form-check-label" for="{{ form.available.id_for_label }}">
+                                        Available for ordering
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-gold">Save Item</button>
+                            <a href="{% url 'menu:item_list' %}" class="btn btn-outline-gold">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
