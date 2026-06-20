@@ -1,0 +1,13 @@
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-subtle" style="background: var(--bg-panel); color: var(--text-primary);">
+            <div class="modal-header border-bottom border-subtle">
+                <h5 class="modal-title" id="cartModalLabel">Room {{ room.room_number }} · Your Order</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="cart-modal-body">
+                {% include "components/customer_cart_items.html" %}
+            </div>
+        </div>
+    </div>
+</div>

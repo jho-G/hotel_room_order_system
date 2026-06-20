@@ -1,0 +1,68 @@
+<div id="cart-items-container">
+    {% if order_success %}
+    <div class="text-center py-4">
+        <div class="mb-3 text-gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+        </div>
+        <h4 class="text-gold mb-2">Order Confirmed!</h4>
+        <p class="text-muted">Your order <strong>#{{ order.pk }}</strong> is sent to the kitchen.</p>
+        <p class="text-muted small mb-4">It will be delivered to Room {{ room.room_number }} shortly.</p>
+        <button type="button" class="btn btn-gold px-4" data-bs-dismiss="modal">Excellent</button>
+    </div>
+    {% elif cart_lines %}
+    <div class="table-responsive">
+        <table class="table table-dark table-borderless align-middle mb-3" style="--bs-table-bg: transparent; color: var(--text-primary);">
+            <thead>
+                <tr class="text-muted small border-bottom border-subtle">
+                    <th>Item</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in cart_lines %}
+                <tr class="border-bottom border-subtle">
+                    <td>
+                        <div class="fw-semibold text-gold">{{ line.menu_item.name }}</div>
+                        <div class="text-muted small">ETB {{ line.menu_item.price }}</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-gold px-2 py-0"
+                                hx-post="{% url 'orders:cart_update' room.unique_token line.menu_item.pk 'decrease' %}"
+                                hx-target="#cart-items-container"
+                                hx-swap="outerHTML"
+                            >-</button>
+                            <span class="fw-bold">{{ line.quantity }}</span>
+                            <button type="button" class="btn btn-sm btn-outline-gold px-2 py-0"
+                                hx-post="{% url 'orders:cart_update' room.unique_token line.menu_item.pk 'increase' %}"
+                                hx-target="#cart-items-container"
+                                hx-swap="outerHTML"
+                            >+</button>
+                        </div>
+                    </td>
+                    <td class="text-end text-gold fw-semibold">ETB {{ line.line_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <span class="text-muted">Subtotal</span>
+        <span class="fs-5 fw-bold text-gold">ETB {{ cart_total }}</span>
+    </div>
+    <form hx-post="{% url 'orders:checkout' room.unique_token %}" hx-target="#cart-items-container" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-gold w-100 py-2">Confirm Room Service Order</button>
+    </form>
+    {% else %}
+    <div class="text-center py-4">
+        <p class="text-muted mb-0">Your cart is empty.</p>
+    </div>
+    {% endif %}
+    
+    <!-- Out-of-band swap to update navbar cart count -->
+    <span id="cart-count" hx-swap-oob="true">Cart · {{ cart_count }}</span>
+</div>

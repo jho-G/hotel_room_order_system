@@ -47,7 +47,10 @@ class RoomAdmin(admin.ModelAdmin):
         )
 
     def menu_url_display(self, obj):
-        return obj.get_menu_url()
+        url = obj.get_menu_url()
+        if not url:
+            return "N/A"
+        return format_html('<a href="{0}" target="_blank">{0}</a>', url)
 
     menu_url_display.short_description = "Menu URL"
 

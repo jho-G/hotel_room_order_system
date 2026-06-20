@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 
 from menu.models import MenuItem
+from notifications.services import notify_order_placed
 from orders.cart import clear_cart, get_cart_data, get_cart_lines
 from orders.models import Order, OrderItem
 from rooms.models import Room
@@ -70,6 +71,8 @@ def create_order_from_cart(request, room_token):
             for line in lines
         ]
     )
+
+    notify_order_placed(order)
 
     clear_cart(request)
     return order

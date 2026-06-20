@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from notifications.services import notify_order_ready
 from orders.models import Order
 
 
@@ -87,6 +88,7 @@ def mark_ready(order):
         raise InvalidStatusTransition("Only cooking orders can be marked ready.")
     order.status = Order.Status.READY
     order.save(update_fields=["status"])
+    notify_order_ready(order)
     return order
 
 

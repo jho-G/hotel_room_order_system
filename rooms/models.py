@@ -42,5 +42,6 @@ class Room(models.Model):
         if request is not None:
             return request.build_absolute_uri(path)
         from django.conf import settings
-
-        return f"{settings.SITE_URL.rstrip('/')}{path}"
+        
+        base_url = getattr(settings, "SITE_URL", "http://localhost:8000")
+        return f"{base_url.rstrip('/')}{path}"

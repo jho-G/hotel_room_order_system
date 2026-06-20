@@ -3,7 +3,11 @@
 {% block title %}Waiter Dashboard — {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 pb-4">
+<div class="container-fluid px-4 pb-4" id="waiter-dashboard-container"
+     hx-get="{% url 'dashboard:waiter' %}"
+     hx-trigger="every 10s"
+     hx-select="#waiter-dashboard-container"
+     hx-swap="outerHTML">
     <div class="row g-4 mb-4">
         <div class="col-sm-6">
             {% include "components/stat_card.html" with label="Ready to Deliver" value=stats.ready hint="Pick up now" %}

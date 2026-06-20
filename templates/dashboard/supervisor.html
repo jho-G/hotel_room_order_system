@@ -4,7 +4,11 @@
 
 {% block content %}
 <div class="container-fluid px-4 pb-4">
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4" id="supervisor-stats-container"
+         hx-get="{% url 'dashboard:supervisor' %}"
+         hx-trigger="every 10s"
+         hx-select="#supervisor-stats-container"
+         hx-swap="outerHTML">
         <div class="col-sm-6 col-xl">
             {% include "components/stat_card.html" with label="Orders Today" value=stats.orders_today hint="Since midnight" %}
         </div>
@@ -50,7 +54,11 @@
             </form>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" id="supervisor-table-container"
+             hx-get="{% url 'dashboard:supervisor' %}?status={{ status_filter }}&room={{ room_query }}"
+             hx-trigger="every 10s"
+             hx-select="#supervisor-table-container"
+             hx-swap="outerHTML">
             <table class="table table-staff align-middle">
                 <thead>
                     <tr>

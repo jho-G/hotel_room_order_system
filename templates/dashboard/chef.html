@@ -3,7 +3,11 @@
 {% block title %}Chef Dashboard — {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 pb-4">
+<div class="container-fluid px-4 pb-4" id="chef-dashboard-container"
+     hx-get="{% url 'dashboard:chef' %}"
+     hx-trigger="every 10s"
+     hx-select="#chef-dashboard-container"
+     hx-swap="outerHTML">
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-4">
             {% include "components/stat_card.html" with label="New Orders" value=stats.pending hint="Awaiting prep" %}

@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView
@@ -12,6 +13,14 @@ from accounts.mixins import (
     WaiterRequiredMixin,
 )
 from accounts.models import User
+from orders.cart import (
+    add_to_cart,
+    decrease_quantity,
+    get_cart_count,
+    get_cart_lines,
+    get_cart_total,
+    increase_quantity,
+)
 from orders.models import Order
 from orders.permissions import (
     user_can_mark_delivered,
@@ -19,12 +28,18 @@ from orders.permissions import (
     user_can_start_cooking,
     user_can_view_order,
 )
+from orders.services import (
+    CartEmptyError,
+    CartValidationError,
+    create_order_from_cart,
+)
 from orders.staff import (
     InvalidStatusTransition,
     mark_delivered,
     mark_ready,
     start_cooking,
 )
+from rooms.models import Room
 
 
 class OrderAccessMixin(LoginRequiredMixin, RoleRequiredMixin):
@@ -114,3 +129,46 @@ class MarkDeliveredView(WaiterRequiredMixin, View):
                 f"Order #{order.pk} delivered to room {order.room.room_number}.",
             )
         return redirect(request.POST.get("next") or reverse("dashboard:waiter"))
+
+
+def _render_cart_fragment(request, room, cart=None, **extra):
+    """Render the cart items partial for a given cart (or an empty cart)."""
+    context = {
+        "room": room,
+        "cart_lines": get_cart_lines(cart) if cart is not None else [],
+        "cart_total": get_cart_total(cart) if cart is not None else 0,
+        "cart_count": get_cart_count(cart) if cart is not None else 0,
+    }
+    context.update(extra)
+    return render(request, "components/customer_cart_items.html", context)
+
+
+class AddToCartView(View):
+    def post(self, request, token, item_id):
+        room = get_object_or_404(Room, unique_token=token, is_active=True)
+        cart = add_to_cart(request, token, item_id)
+        return _render_cart_fragment(request, room, cart)
+
+
+class UpdateCartQuantityView(View):
+    def post(self, request, token, item_id, action):
+        room = get_object_or_404(Room, unique_token=token, is_active=True)
+        if action == "increase":
+            cart = increase_quantity(request, token, item_id)
+        elif action == "decrease":
+            cart = decrease_quantity(request, token, item_id)
+        else:
+            return HttpResponseBadRequest("Invalid action")
+        return _render_cart_fragment(request, room, cart)
+
+
+class CheckoutView(View):
+    def post(self, request, token):
+        room = get_object_or_404(Room, unique_token=token, is_active=True)
+        try:
+            order = create_order_from_cart(request, token)
+        except (CartEmptyError, CartValidationError) as e:
+            return _render_cart_fragment(request, room, error_message=str(e))
+        return _render_cart_fragment(
+            request, room, order_success=True, order=order
+        )

@@ -1,0 +1,35 @@
+{% comment %}
+Fragment returned by notifications:fragment (5s poll) and the mark-read actions.
+Top-level elements use hx-swap-oob so they update the badge + list in place
+without closing an open Bootstrap dropdown.
+{% endcomment %}
+<span id="notif-badge" hx-swap-oob="true"
+      class="notif-badge{% if not unread_count %} d-none{% endif %}">{{ unread_count }}</span>
+
+<div id="notif-list" hx-swap-oob="true">
+    <div class="notif-head">
+        <span class="notif-head-title">Notifications</span>
+        {% if unread_count %}
+        <button type="button" class="notif-mark-all"
+                hx-post="{% url 'notifications:mark_all_read' %}" hx-swap="none">
+            Mark all read
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="notif-items">
+        {% for n in notifications %}
+        <button type="button"
+                class="notif-item{% if not n.is_read %} notif-unread{% endif %}"
+                hx-post="{% url 'notifications:mark_read' n.pk %}" hx-swap="none">
+            <span class="notif-item-title">{{ n.title }}</span>
+            {% if n.message %}<span class="notif-item-msg">{{ n.message }}</span>{% endif %}
+            <span class="notif-item-time">{{ n.created_at|timesince }} ago</span>
+        </button>
+        {% empty %}
+        <div class="notif-empty">No notifications yet.</div>
+        {% endfor %}
+    </div>
+
+    <a class="notif-foot" href="{% url 'notifications:list' %}">View all notifications</a>
+</div>

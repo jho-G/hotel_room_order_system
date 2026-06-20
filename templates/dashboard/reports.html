@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Reports — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 pb-4">
+
+    <!-- Daily report -->
+    <div class="dashboard-panel mb-4">
+        <div class="dashboard-panel-header">
+            <h2>Today</h2>
+            <span class="badge badge-muted">{{ daily.date|date:"M j, Y" }}</span>
+        </div>
+        <div class="row g-4 p-3">
+            <div class="col-sm-6 col-xl-4">
+                {% include "components/stat_card.html" with label="Total Orders" value=daily.total_orders hint="Placed today" %}
+            </div>
+            <div class="col-sm-6 col-xl-4">
+                {% include "components/stat_card.html" with label="Delivered" value=daily.delivered_orders hint="Completed today" %}
+            </div>
+            <div class="col-sm-6 col-xl-4">
+                {% include "components/stat_card.html" with label="Revenue" value=daily.revenue hint="ETB · delivered" %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly report -->
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <h2>This Month</h2>
+            <span class="badge badge-muted">{{ monthly.month_label }}</span>
+        </div>
+        <div class="row g-4 p-3">
+            <div class="col-sm-6">
+                {% include "components/stat_card.html" with label="Orders" value=monthly.order_count hint="Placed this month" %}
+            </div>
+            <div class="col-sm-6">
+                {% include "components/stat_card.html" with label="Revenue" value=monthly.revenue hint="ETB · delivered" %}
+            </div>
+        </div>
+
+        <div class="dashboard-panel-header">
+            <h2>Top Selling Items</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-staff align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th class="text-end">Qty Sold</th>
+                        <th class="text-end">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in monthly.top_items %}
+                    <tr>
+                        <td class="text-muted">{{ forloop.counter }}</td>
+                        <td class="fw-semibold">{{ item.menu_item__name }}</td>
+                        <td class="text-end">{{ item.quantity }}</td>
+                        <td class="text-end text-gold fw-semibold">ETB {{ item.revenue }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">No delivered orders this month yet.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

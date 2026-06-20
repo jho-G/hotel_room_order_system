@@ -48,7 +48,10 @@
                         <p class="menu-item-desc">{{ item.description }}</p>
                         <div class="menu-card-footer">
                             <span class="menu-price">ETB {{ item.price }}</span>
-                            <button type="button" class="btn btn-add" data-item="{{ item.name }}">
+                            <button type="button" class="btn btn-add"
+                                hx-post="{% url 'orders:cart_add' room.unique_token item.pk %}"
+                                hx-target="#cart-items-container"
+                                hx-swap="outerHTML">
                                 Add +
                             </button>
                         </div>
@@ -64,4 +67,6 @@
         {% endif %}
     </div>
 </section>
+
+{% include "components/customer_cart.html" %}
 {% endblock %}

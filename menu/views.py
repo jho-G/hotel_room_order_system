@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, UpdateView
@@ -25,8 +25,6 @@ class CustomerMenuView(View):
             .select_related("category")
             .order_by("category__name", "name")
         )
-
-        from django.shortcuts import render
 
         return render(
             request,
